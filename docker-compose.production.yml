@@ -42,14 +42,15 @@ services:
     environment:
       - POSTGRES_DB=vfs
       - POSTGRES_USER=vfs
-      - POSTGRES_PASSWORD=secure123
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db_password
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U vfs"]
       interval: 10s
       timeout: 5s
-      retries: 5
+    secrets:
+      - db_password
 
   redis:
     image: redis:7-alpine
@@ -62,6 +63,10 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+secrets:
+  db_password:
+    file: ./secrets/db_password.txt
 
 volumes:
   postgres_data:
