@@ -1,0 +1,10 @@
+2026-04-18 09:22:09 - login-test - INFO - Starting login test...
+2026-04-18 09:22:09 - login-test - INFO - Step 1: Initializing browser session
+2026-04-18 09:22:09 - login-test - ERROR - Login test failed: 'BrowserManager' object has no attribute 'launch'
+2026-04-18 09:23:54 - login-test - INFO - Starting login test...
+2026-04-18 09:23:54 - login-test - INFO - Step 1: Initializing browser session
+2026-04-18 09:23:55 - login-test - INFO - Step 2: Navigating to VFS Global
+2026-04-18 09:23:55 - login-test - ERROR - Login test failed: Page.goto: net::ERR_NAME_NOT_RESOLVED at https://ukvisa.vfsglobal.com/tur/en/login
+Call log:
+  - navigating to "https://ukvisa.vfsglobal.com/tur/en/login", waiting until "domcontentloaded"
+

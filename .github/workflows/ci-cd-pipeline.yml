@@ -1,0 +1,104 @@
+name: VFS Global CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: vfs-automation
+  PYTHON_VERSION: '3.13'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install Dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+          pip install playwright
+          playwright install chromium
+      - name: Run Unit Tests
+        run: pytest tests/unit/ -v --cov=src/modules --cov-report=xml
+      - name: Run Integration Tests
+        run: pytest tests/integration/ -v
+      - name: Run E2E Tests
+        run: pytest tests/e2e/ -v --cov=src --cov-report=xml
+      - name: Upload Coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage.xml
+          flags: unittests
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker Image
+        run: docker build -t ${{ env.IMAGE_NAME }}:latest -f docker/Dockerfile .
+      - name: Push to Registry
+        run: |
+          docker tag ${{ env.IMAGE_NAME }}:latest ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME }}:latest
+          docker push ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME }}:latest
+
+  deploy-staging:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy to Staging
+        run: docker-compose -f docker-compose.staging.yml up -d
+      - name: Verify Staging
+        run: curl -f http://localhost:8000/health
+
+  deploy-canary:
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Canary Deployment (2-5% Traffic)
+        run: docker-compose -f docker-compose.canary.yml up -d
+      - name: Canary Health Check
+        run: |
+          for i in {1..5}; do
+            if curl -f http://localhost:8000/health; then
+              break
+            fi
+            sleep 10
+          done
+
+  deploy-production:
+    needs: deploy-canary
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Production Deployment
+        run: docker-compose -f docker-compose.production.yml up -d
+      - name: Send Telegram Notification
+        run: curl -X POST \
+          -d "{\"chat_id\": ${TELEGRAM_CHAT_ID}, \"text\": \"✅ Phase 5 Production Deployment Complete\"}" \
+          https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage
+
+  performance-test:
+    needs: deploy-production
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Locust
+        run: pip install locust
+      - name: Run Performance Test
+        run: locust -f tests/performance/test_performance_locust.py --headless --users 100 --spawn-rate 5 --run-time 1m
+      - name: Upload Performance Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-results
+          path: locust_report.html

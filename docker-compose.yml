@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  vfs-automation:
+    build: ./docker
+    container_name: vfs-automation
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - VFS_EMAIL=${VFS_EMAIL}
+      - VFS_PASSWORD=${VFS_PASSWORD}
+      - VFS_PHONE=${VFS_PHONE}
+      - IMAP_EMAIL=${IMAP_EMAIL}
+      - IMAP_PASSWORD=${IMAP_PASSWORD}
+      - CACHE_DURATION_SEC=900
+      - MAX_RETRIES=3
+    volumes:
+      - ./src:/app/src
+      - ./data:/app/data
+      - ./logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - vfs-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  nginx:
+    image: nginx:alpine
+    container_name: vfs-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - vfs-automation
+    restart: unless-stopped
+    networks:
+      - vfs-network
+
+networks:
+  vfs-network:
+    driver: bridge
