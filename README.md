@@ -11,9 +11,8 @@ A robust Python-based automation system for logging into the VFS Global visa por
 - **Configuration:** YAML-based configuration with environment variable overrides.
 - **Modular Architecture:** Designed for easy integration of new OTP providers and browsers.
 
-<<<<<<< HEAD
 ## 📦 Installation & Setup
-=======
+
 **Özellikler:**
 - ✅ CloudFlare Cookie Bypass & Persistence
 - ✅ Dual-Channel OTP (Email + Phone {{VFS_PHONE}})
@@ -21,7 +20,6 @@ A robust Python-based automation system for logging into the VFS Global visa por
 - ✅ Multi-Account Batch Processing
 - ✅ Docker Container Deployment
 - ✅ FastAPI Web Service
->>>>>>> a5908e2 (refactor: Final credential sanitization for public release)
 
 1. Clone the repository.
 2. Install dependencies:
@@ -48,8 +46,6 @@ Run the test suite:
 ```bash
 pytest
 ```
-<<<<<<< HEAD
-=======
 
 ### 2. Bağımlılıkları Kur
 
@@ -169,4 +165,4 @@ MAX_RETRIES=3
 ---
 
 *Version 1.0 | April 2026 | Agent Zero System*
->>>>>>> a5908e2 (refactor: Final credential sanitization for public release)
+

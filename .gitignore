@@ -1,0 +1,37 @@
+# Agent Zero & Internal
+.a0proj/
+memory/
+llmful.txt
+a0-workdir/
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.eggs/
+*.egg-info/
+*.egg
+build/
+dist/
+venv/
+.venv/
+
+# Testing/Coverage
+.coverage
+htmlcov/
+.pytest_cache/
+coverage.xml
+
+# Logs/Screenshots
+logs/
+screenshots/
+
+# Secrets
+.env
+.env.*
+secrets/
+
+# IDE/OS
+.vscode/
+.idea/
+.DS_Store
