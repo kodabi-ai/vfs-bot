@@ -1,0 +1,123 @@
+# VFS Global Visa Portal Automation - LLM Context & Technical Manual
+**Proje:** Kodabi Vize Otomasyonu  
+**Hedef:** `https://visa.vfsglobal.com/tur/tr/fra/login`  
+**Dokümantasyon Türü:** LLM Context / Teknik Referans  
+**Son Güncelleme:** 2026-04-23
+
+---
+
+## 📁 1. Proje Yapısı ve Mimari
+
+```
+/kodabi-visa-automation/
+├── src/
+│   ├── legacy/               # Eski versiyonlar (V28-V50)
+│   ├── modules/              # Core Modüller (cache, auth, api, browser)
+│   ├── workers/              # Async worker yapıları
+│   ├── utils/logger.py       # Merkezi Loglama
+│   ├── config.py             # 🆕 Merkezi Konfigürasyon
+│   ├── vfs_login.py          # 🆕 VFSLoginBot Class
+│   └── vfs_otp_flow.py       # 🆕 VFSOTPManager Class
+├── screenshots/              # Debug görüntüleri
+├── secrets/db_password.txt   # Docker Secret
+├── docs/                     # Faz 1-7 dokümantasyonları
+├── tests/                    # PyTest (Unit, Integration, E2E)
+├── docker-compose.production.yml
+└── .env                      # Environment Variables
+```
+
+**Mimari Notlar:**
+- **SPA Routing:** Angular tabanlı. Sayfa yenilenmelerinde (`/tur/tr/fra/login`) `networkidle` yerine `load` veya content-aware bekleme şart.
+- **Cloudflare Koruması:** `403201` challenge'ı iframe üzerinden gelir. `state="detached"` beklenmeli.
+- **Cache & Session:** Redis connection pool kullanılır. Fallback için in-memory cache mevcuttur.
+
+---
+
+## 🔄 2. Ana Otomasyon Akışları
+
+### 🌐 Flow 1: Login & Cookie Bypass (V50 Stratejisi)
+1. **Cloudscraper Bypass:** `delay=10` ile başlangıç, cookie topla, domain `.vfsglobal.com` olarak enjekte et.
+2. **Root Init:** Önce ana portal (`/`) aç, Angular shell'i yükle.
+3. **Target Navigate:** `https://visa.vfsglobal.com/tur/tr/fra/login` rotasına git.
+4. **CF Iframe Detach:** `iframe[src*='challenges/']` state `detached` olana kadar bekle (max 45s).
+5. **Content-Await (V50):** `document.body.innerText.includes('E-posta')` true olana kadar bekle. Bu, SPA'nın form render'ının tamamlanmasını garanti eder.
+6. **Selector & Fill:** Form elemanları bulunduktan sonra credentials (`mustafa.eke@live.com` / `Vfsglobal!5561!`) gir.
+7. **Submit:** `button:has-text("Giriş Yap")` veya `type="submit"` tıkla.
+8. **API Trigger:** `POST /api/v1/auth/otp` çağrısı yapılır, `200 OK` döner.
+
+### 📧 Flow 2: OTP Yakalama & Dashboard
+- **Primary:** Email IMAP polling (`mustafa.eke@live.com`). Regex: `\d{6}`.
+- **Backup:** SMS `5468224662`. API veya webhook kontrolü.
+- **Dashboard:** OTP doğrulandıktan sonra `fra/dashboard` rotasına yönlendirilir. API endpoints kontrol edilir.
+- **Yeni Mimari:** `VFSOTPManager` sınıfı içinde `trigger_otp()` metodu ile otomatik tetikleme ve label-based input eşleşmeleri uygulanır.
+
+---
+
+## 📈 3. Versiyon Evrimi ve Mimari Geçiş
+
+| Versiyon | Strateji | Durum | Not |
+|:---:|---|---|---|
+| V83-V98 | Selenium/Playwright Hybrid, IMAP+SMS | ✅ Stabil | %92-98 başarı. Cloudflare & DNS düzeltmeleri. |
+| V28-V37 | Playwright iframe click, SPA fallback | ⚠️ Debug | Form render gecikmeleri, selector uyuşmazlıkları. |
+| V38-V49 | Label sibling search, JS click fallback | ⚠️ Debug | `403201` loop, `Illegal return statement` JS hatası. |
+| **V50** | **Content-Await (`innerText`)** | ✅ **Başarılı** | **Form dolduruldu, API çağrısı tetiklendi. `200 OK`.** |
+
+**Refaktör (RAG Best Practices):**
+- Versiyon sayıları (`v50`, `v49`) dosya adlarından silinip, mantıksal sınıflara (`VFSLoginBot`, `VFSOTPManager`) dönüştürüldü.
+- `config.py` ile tüm sabitler, timeout'lar ve selector'lar merkezi hale getirildi.
+- Kod tekrarı azaltıldı, `Single Responsibility Principle` (SRP) uygulandı.
+- Legacy dosyalar `src/legacy/` klasörüne taşındı.
+
+---
+
+## 🛠️ 4. Teknik Best Practices & Konfigürasyon
+
+### 🔐 Kimlik Bilgileri & Env
+- `EMAIL`: `mustafa.eke@live.com`
+- `PASS`: `Vfsglobal!5561!`
+- `PHONE`: `5468224662`
+- `VFS_HOST`: `https://visa.vfsglobal.com/tur/tr/fra/login`
+- `API_BASE`: `https://lift-api.vfsglobal.com`
+
+### 🕵️‍♂️ Debug & Hata Çözümleme
+1. **İframe Takılması:** `await page.wait_for_selector("iframe[src*='challenges/']", state="detached", timeout=45000)`
+2. **Form Bulunamaması:** `document.body.innerText.includes('E-posta')` kontrolü yap. Eğer false ise sayfayı `reload(wait_until="load")` yap.
+3. **DNS/Network:** Container içinden `host.docker.internal:11434` (Ollama) veya `lift-api.vfsglobal.com` timeout alıyorsa `/etc/hosts`'a statik IP ekle.
+4. **HTML Dökümü:** `page.content()` veya `page.inner_text('body')` log'la. Formun `vfs-app` veya `ng-content` içinde render olup olmadığını kontrol et.
+5. **Screenshots:** Başarısız durumlarda `screenshots/e2e_vXX_debug.png` otomatik kaydedilir. DOM görseli incele.
+
+### 📦 Cache & Redis (Phase 6)
+- Redis bağlantısı `redis.ConnectionPool.from_url()` ile yönetilir.
+- `max_connections=10`, `decode_responses=True`.
+- Hata durumunda `MemoryFallback.get(key)` tetiklenir.
+- TTL: 3600s.
+
+---
+
+## 🧩 5. RAG & MCP Entegrasyonu
+- **LightRAG MCP:** `lightrag_software_engineering_mcp` kullanılarak doküman sorgulanır.
+- **Query Pattern:** `query="VFS Global automation architecture, version history, best practices"`
+- **Insert:** Yeni scriptler veya bug fix logları doğrudan LightRAG storage'a `insert_file` ile eklenir.
+- **Vector Search:** `memory_load` veya `lightrag_business_strategy_mcp.query_document` ile bağlamsal context getirilir.
+
+---
+
+## 🚀 6. Çalıştırma ve Güncelleme
+
+### 🏁 Çalıştırma
+```bash
+cd /a0/usr/projects/kodabi-visa-automation
+source venv/bin/activate
+python vfs_login.py          # VFSLoginBot: Cloudscraper + Playwright Login
+python vfs_otp_flow.py       # VFSOTPManager: Form, OTP Trigger & API Monitor
+```
+
+### 🔄 Güncelleme Akışı
+1. Yeni versiyon (V51+). `src/e2e_login_vXX.py` olarak kaydet.
+2. `git add -A && git commit -m "VXX: [Kısa Açıklama]"`
+3. Değişiklikleri LLM context'e aktarmak için bu dosyayı oku.
+4. Test et -> Debug et -> Commit et.
+
+---
+
+*Bu dokümantasyon, VFS Global otomasyon projesinin LLM'ler tarafından doğrudan anlaşılması ve modify edilebilmesi için optimize edilmiştir. Teknik detaylar, versiyon geçmişi ve best practice'ler burada merkezi olarak tutulur.*

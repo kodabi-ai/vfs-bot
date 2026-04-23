@@ -1,0 +1,32 @@
+# VFS Global Automation Configuration
+# -----------------------------------
+# Bu dosya, Python scriptlerinin (.py) yapılandırma verilerini okuması içindir.
+# Tüm sabitler, timeout'lar ve selector'lar burada tanımlanmıştır.
+
+vfs_global:
+  urls:
+    base: "https://visa.vfsglobal.com/tur/tr/"
+    login: "https://visa.vfsglobal.com/tur/tr/fra/login"
+    api_base: "https://lift-api.vfsglobal.com"
+  
+  credentials:
+    email: "mustafa.eke@live.com"
+    password: "Vfsglobal!5561!"
+    phone: "5468224662"
+
+  timeouts:
+    cloudflare: 45000
+    content_await: 40000
+    form_fill: 10000
+    otp_poll: 300
+  
+  retry:
+    max_retries: 3
+    delay_seconds: 5
+
+  selectors:
+    cf_iframe: "iframe[src*='challenges/']"
+    email_input: "input[type='text'], input[type='email']"
+    password_input: "input[type='password']"
+    login_button: 'button:has-text("Giriş Yap"), button[type="submit"]'
+    otp_trigger: 'button:has-text("Gönder"), button:has-text("Send OTP")'
