@@ -1,7 +1,6 @@
 # VFS Global Automation Configuration
 # -----------------------------------
-# Bu dosya, Python scriptlerinin (.py) yapılandırma verilerini okuması içindir.
-# Tüm sabitler, timeout'lar ve selector'lar burada tanımlanmıştır.
+# This file holds configuration values. Sensitive data can be overridden via .env variables.
 
 vfs_global:
   urls:
@@ -10,9 +9,9 @@ vfs_global:
     api_base: "https://lift-api.vfsglobal.com"
   
   credentials:
-    email: "mustafa.eke@live.com"
-    password: "Vfsglobal!5561!"
-    phone: "5468224662"
+    email: "{{VFS_EMAIL}}"  # Overridden by VFS_EMAIL env var
+    password: "{{VFS_PASSWORD}}" # Overridden by VFS_PASSWORD env var
+    phone: "{{VFS_PHONE}}"  # Overridden by VFS_PHONE env var
 
   timeouts:
     cloudflare: 45000
