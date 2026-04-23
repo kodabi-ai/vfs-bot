@@ -96,7 +96,7 @@ imap.select('INBOX')
 status, data = imap.search(None, 'FROM"vfsglobal.com"')
 
 # Phone OTP
-otp_code = input("Enter Phone OTP (5468224662): ").strip()
+otp_code = input("Enter Phone OTP ({{VFS_PHONE}}): ").strip()
 ```
 
 ### 7. Retry Mechanism

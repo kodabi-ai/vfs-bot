@@ -24,8 +24,8 @@ VFS Global visa portal automation platform with 95%+ success rate for login, OTP
 - FR1.5: Dashboard access & session validation
 
 ### FR2: OTP Management
-- FR2.1: Email OTP via IMAP polling (mustafa.eke@live.com)
-- FR2.2: Phone OTP via SMS (5468224662)
+- FR2.1: Email OTP via IMAP polling ({{VFS_EMAIL}})
+- FR2.2: Phone OTP via SMS ({{VFS_PHONE}})
 - FR2.3: OTP auto-retrieval & fallback mechanism
 - FR2.4: OTP expiration handling (5-10 min)
 - FR2.5: OTP retry mechanism (3 attempts)

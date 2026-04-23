@@ -7,9 +7,9 @@ load_dotenv()
 @pytest.fixture
 def vfs_config():
     return {
-        "email": os.getenv("VFS_EMAIL", "mustafa.eke@live.com"),
-        "password": os.getenv("VFS_PASSWORD", "Vfsglobal!5561!"),
-        "phone": os.getenv("VFS_PHONE", "5468224662"),
+        "email": os.getenv("VFS_EMAIL", "{{VFS_EMAIL}}"),
+        "password": os.getenv("VFS_PASSWORD", "{{VFS_PASSWORD}}"),
+        "phone": os.getenv("VFS_PHONE", "{{VFS_PHONE}}"),
         "api_url": os.getenv("VFS_API_URL", "https://lift-api.vfsglobal.com"),
     }
 
@@ -26,7 +26,7 @@ def mock_browser_page():
 @pytest.fixture
 def sample_account():
     return {
-        "email": "mustafa.eke@live.com",
-        "password": "Vfsglobal!5561!",
-        "phone": "5468224662"
+        "email": "{{VFS_EMAIL}}",
+        "password": "{{VFS_PASSWORD}}",
+        "phone": "{{VFS_PHONE}}"
     }

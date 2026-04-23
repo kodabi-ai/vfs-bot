@@ -111,12 +111,12 @@ async def run_e2e_v41():
                 print("✅ Email input found!")
                 
                 # Fill credentials
-                email_input.fill('mustafa.eke@live.com')
+                email_input.fill('{{VFS_EMAIL}}')
                 print("📧 Email filled.")
                 
                 # Find password input
                 pass_input = await page.wait_for_selector('input[type="password"]', state="visible", timeout=10000)
-                pass_input.fill('Vfsglobal!5561!')
+                pass_input.fill('{{VFS_PASSWORD}}')
                 print("🔒 Password filled.")
                 
                 # Click Login button

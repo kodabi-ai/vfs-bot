@@ -18,16 +18,16 @@ def test_full_login_flow():
     worker = AutomationWorker()
     
     # Validate credentials
-    assert auth.validate_email("mustafa.eke@live.com") == True
-    assert auth.validate_phone("5468224662") == True
+    assert auth.validate_email("{{VFS_EMAIL}}") == True
+    assert auth.validate_phone("{{VFS_PHONE}}") == True
     
     # Check cache
     cache.cache_write("session", "active")
     assert cache.cache_read("session") == "active"
     
     # Check OTP
-    assert otp.validate_email_otp("mustafa.eke@live.com") == True
-    assert otp.validate_phone_otp("5468224662") == True
+    assert otp.validate_email_otp("{{VFS_EMAIL}}") == True
+    assert otp.validate_phone_otp("{{VFS_PHONE}}") == True
     
     # Check API
     assert api.get_headers() is not None
@@ -40,7 +40,7 @@ def test_full_login_flow():
 def test_otp_duality():
     """Test dual-channel OTP strategy"""
     handler = OTPHandler()
-    result = handler.validate_dual_channel("mustafa.eke@live.com", "5468224662")
+    result = handler.validate_dual_channel("{{VFS_EMAIL}}", "{{VFS_PHONE}}")
     assert result == True
 
 @pytest.mark.e2e

@@ -57,16 +57,16 @@ async def run_e2e_v14():
             if email_input:
                 print(f"✍️ Filling email (type='email')...")
                 try:
-                    await page.fill('input[type="email"]', 'mustafa.eke@live.com', timeout=10000)
+                    await page.fill('input[type="email"]', '{{VFS_EMAIL}}', timeout=10000)
                 except:
-                    await page.evaluate('document.querySelector("input[type=\'email\']")?.value = "mustafa.eke@live.com"')
+                    await page.evaluate('document.querySelector("input[type=\'email\']")?.value = "{{VFS_EMAIL}}"')
             
             if password_input:
                 print(f"✍️ Filling password (type='password')...")
                 try:
-                    await page.fill('input[type="password"]', 'Vfsglobal!5561!', timeout=10000)
+                    await page.fill('input[type="password"]', '{{VFS_PASSWORD}}', timeout=10000)
                 except:
-                    await page.evaluate('document.querySelector("input[type=\'password\']")?.value = "Vfsglobal!5561!"')
+                    await page.evaluate('document.querySelector("input[type=\'password\']")?.value = "{{VFS_PASSWORD}}"')
                 
             print("🖱️ Clicking Login button...")
             login_btn = await page.query_selector('button[type="submit"]')

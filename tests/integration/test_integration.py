@@ -17,7 +17,7 @@ def test_module_integration():
     worker = AutomationWorker()
     
     # Integration: Auth + Browser
-    assert auth.validate_email("mustafa.eke@live.com") == True
+    assert auth.validate_email("{{VFS_EMAIL}}") == True
     assert browser.launch_chromium(headless=True) == "chromium_launched"
     
     # Integration: Cache + API
@@ -25,7 +25,7 @@ def test_module_integration():
     assert api.get_headers() is not None
     
     # Integration: OTP + Worker
-    assert otp.validate_email_otp("mustafa.eke@live.com") == True
+    assert otp.validate_email_otp("{{VFS_EMAIL}}") == True
     assert worker.get_status() == "ready"
 
 @pytest.mark.integration
@@ -37,11 +37,11 @@ def test_multi_module_workflow():
     
     # Auth -> Cache -> OTP workflow
     auth.validate_credentials({
-        'email': 'mustafa.eke@live.com',
-        'password': 'Vfsglobal!5561!'
+        'email': '{{VFS_EMAIL}}',
+        'password': '{{VFS_PASSWORD}}'
     })
     cache.cache_write("credentials", auth.generate_token("test"))
-    otp.validate_dual_channel("mustafa.eke@live.com", "5468224662")
+    otp.validate_dual_channel("{{VFS_EMAIL}}", "{{VFS_PHONE}}")
     
     # Verify cache
     assert cache.cache_read("credentials") is not None

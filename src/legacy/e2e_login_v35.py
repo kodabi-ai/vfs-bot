@@ -104,13 +104,13 @@ async def run_e2e_v35():
                 return
 
             # 8. Fill Credentials
-            await element.fill('mustafa.eke@live.com')
+            await element.fill('{{VFS_EMAIL}}')
             print("📧 Email filled.")
 
             pass_sel = 'input[type="password"]'
             try:
                 pass_el = await page.wait_for_selector(pass_sel, state="visible", timeout=5000)
-                await pass_el.fill('Vfsglobal!5561!')
+                await pass_el.fill('{{VFS_PASSWORD}}')
                 print("🔒 Password filled.")
             except:
                 print("⚠️ Password not visible.")

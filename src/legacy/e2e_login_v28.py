@@ -85,12 +85,12 @@ async def run_e2e_v28():
             
             if target_found:
                 print("✍️ Filling credentials...")
-                await email_input.fill('mustafa.eke@live.com')
+                await email_input.fill('{{VFS_EMAIL}}')
                 
                 password_input = await page.query_selector('input[type="password"]')
                 if password_input:
-                    await password_input.fill('Vfsglobal!5561!')
-                    await password_input.fill('Vfsglobal!5561!') # Double fill for some SPAs
+                    await password_input.fill('{{VFS_PASSWORD}}')
+                    await password_input.fill('{{VFS_PASSWORD}}') # Double fill for some SPAs
                 
                 print("🖱️ Clicking Login button...")
                 login_btn = await page.query_selector('button[type="submit"]')

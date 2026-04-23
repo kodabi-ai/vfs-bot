@@ -57,11 +57,11 @@ async def run_e2e_v21():
             
             if email_input:
                 print("✍️ Filling email...")
-                await page.fill('input[type="email"]', 'mustafa.eke@live.com')
+                await page.fill('input[type="email"]', '{{VFS_EMAIL}}')
             
             if password_input:
                 print("✍️ Filling password...")
-                await page.fill('input[type="password"]', 'Vfsglobal!5561!')
+                await page.fill('input[type="password"]', '{{VFS_PASSWORD}}')
                 
             print("🖱️ Clicking Login button...")
             login_btn = await page.query_selector('button[type="submit"]')

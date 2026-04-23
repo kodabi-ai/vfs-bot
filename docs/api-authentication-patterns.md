@@ -42,8 +42,8 @@ cookies_dict = {c['name']: c['value'] for c in cookies}
 ### 3. API Call Structure
 ```python
 login_data = {
-    'username': 'mustafa.eke@live.com',
-    'password': 'Vfsglobal!5561!',
+    'username': '{{VFS_EMAIL}}',
+    'password': '{{VFS_PASSWORD}}',
     'missioncode': 'fra',
     'countrycode': 'tur',
     'languageCode': 'tr-TR'

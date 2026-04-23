@@ -158,7 +158,7 @@ class OTPHandler:
     
     async def receive_phone_otp(self, account: Account) -> str:
         """Receive SMS OTP for phone number"""
-        # 5468224662 backup
+        # {{VFS_PHONE}} backup
         # SMS webhook or polling
         # Extract 6-digit code
         pass
@@ -270,12 +270,12 @@ class BrowserManager:
 ### Environment Variables (`.env.example`)
 ```bash
 # Account Configuration
-VFS_EMAIL=mustafa.eke@live.com
-VFS_PASSWORD=Vfsglobal!5561!
-VFS_PHONE=5468224662
+VFS_EMAIL={{VFS_EMAIL}}
+VFS_PASSWORD={{VFS_PASSWORD}}
+VFS_PHONE={{VFS_PHONE}}
 
 # Email IMAP (Outlook App Password)
-IMAP_EMAIL=mustafa.eke@live.com
+IMAP_EMAIL={{VFS_EMAIL}}
 IMAP_PASSWORD=xxxx_xxxx_xxxx_xxxx
 
 # Proxy (MVP 2+)

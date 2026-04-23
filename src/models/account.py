@@ -34,9 +34,9 @@ class Account(BaseModel):
         json_schema_extra = {
             "example": {
                 "id": "acc_001",
-                "email": "mustafa.eke@live.com",
-                "password": "Vfsglobal!5561!",
-                "phone": "5468224662"
+                "email": "{{VFS_EMAIL}}",
+                "password": "{{VFS_PASSWORD}}",
+                "phone": "{{VFS_PHONE}}"
             }
         }
 

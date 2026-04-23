@@ -51,11 +51,11 @@ async def run_e2e_v29():
             
             if email_input:
                 print("✅ Login Form Bulundu!")
-                await email_input.fill('mustafa.eke@live.com')
+                await email_input.fill('{{VFS_EMAIL}}')
                 
                 password_input = await page.query_selector('input[type="password"]')
                 if password_input:
-                    await password_input.fill('Vfsglobal!5561!')
+                    await password_input.fill('{{VFS_PASSWORD}}')
                     
                 print("🖱️ Login Butonuna Tıklanıyor...")
                 login_btn = await page.query_selector('button[type="submit"]')
@@ -82,10 +82,10 @@ async def run_e2e_v29():
                 email_input_retry = await page.query_selector('input[type="email"]')
                 if email_input_retry:
                     print("✅ Re-init sonrası Form Bulundu! Dolduruluyor...")
-                    await email_input_retry.fill('mustafa.eke@live.com')
+                    await email_input_retry.fill('{{VFS_EMAIL}}')
                     password_input = await page.query_selector('input[type="password"]')
                     if password_input:
-                        await password_input.fill('Vfsglobal!5561!')
+                        await password_input.fill('{{VFS_PASSWORD}}')
                     await page.evaluate('document.querySelector("button")?.click()')
                     await page.wait_for_timeout(10000)
                     print(f"🔗 Son URL: {page.url}")

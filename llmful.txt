@@ -41,13 +41,13 @@
 3. **Target Navigate:** `https://visa.vfsglobal.com/tur/tr/fra/login` rotasına git.
 4. **CF Iframe Detach:** `iframe[src*='challenges/']` state `detached` olana kadar bekle (max 45s).
 5. **Content-Await (V50):** `document.body.innerText.includes('E-posta')` true olana kadar bekle. Bu, SPA'nın form render'ının tamamlanmasını garanti eder.
-6. **Selector & Fill:** Form elemanları bulunduktan sonra credentials (`mustafa.eke@live.com` / `Vfsglobal!5561!`) gir.
+6. **Selector & Fill:** Form elemanları bulunduktan sonra credentials (`{{VFS_EMAIL}}` / `{{VFS_PASSWORD}}`) gir.
 7. **Submit:** `button:has-text("Giriş Yap")` veya `type="submit"` tıkla.
 8. **API Trigger:** `POST /api/v1/auth/otp` çağrısı yapılır, `200 OK` döner.
 
 ### 📧 Flow 2: OTP Yakalama & Dashboard
-- **Primary:** Email IMAP polling (`mustafa.eke@live.com`). Regex: `\d{6}`.
-- **Backup:** SMS `5468224662`. API veya webhook kontrolü.
+- **Primary:** Email IMAP polling (`{{VFS_EMAIL}}`). Regex: `\d{6}`.
+- **Backup:** SMS `{{VFS_PHONE}}`. API veya webhook kontrolü.
 - **Dashboard:** OTP doğrulandıktan sonra `fra/dashboard` rotasına yönlendirilir. API endpoints kontrol edilir.
 - **Yeni Mimari:** `VFSOTPManager` sınıfı içinde `trigger_otp()` metodu ile otomatik tetikleme ve label-based input eşleşmeleri uygulanır.
 
@@ -73,9 +73,9 @@
 ## 🛠️ 4. Teknik Best Practices & Konfigürasyon
 
 ### 🔐 Kimlik Bilgileri & Env
-- `EMAIL`: `mustafa.eke@live.com`
-- `PASS`: `Vfsglobal!5561!`
-- `PHONE`: `5468224662`
+- `EMAIL`: `{{VFS_EMAIL}}`
+- `PASS`: `{{VFS_PASSWORD}}`
+- `PHONE`: `{{VFS_PHONE}}`
 - `VFS_HOST`: `https://visa.vfsglobal.com/tur/tr/fra/login`
 - `API_BASE`: `https://lift-api.vfsglobal.com`
 

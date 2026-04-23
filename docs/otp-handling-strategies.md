@@ -21,14 +21,14 @@ VFS Global requires OTP verification after login:
 
 ### 1. Dual-Channel OTP Strategy
 ```python
-# Primary: Email OTP (mustafa.eke@live.com)
-# Backup: Phone OTP (5468224662)
+# Primary: Email OTP ({{VFS_EMAIL}})
+# Backup: Phone OTP ({{VFS_PHONE}})
 
 OTP_CHANNELS = {
     'primary': 'email',
     'backup': 'phone',
-    'email': 'mustafa.eke@live.com',
-    'phone': '5468224662'
+    'email': '{{VFS_EMAIL}}',
+    'phone': '{{VFS_PHONE}}'
 }
 ```
 
@@ -68,7 +68,7 @@ def use_phone_otp(driver):
     time.sleep(10)
     
     # Enter OTP from SMS
-    otp_code = get_sms_otp('5468224662')
+    otp_code = get_sms_otp('{{VFS_PHONE}}')
     otp_field = driver.find_element(By.CSS_SELECTOR, "input[type='number']")
     otp_field.send_keys(otp_code)
 ```

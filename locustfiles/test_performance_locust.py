@@ -27,9 +27,9 @@ class VFSGlobalUser(HttpUser):
     
     # Test credentials (from Phase 4 Quality)
     test_credentials = {
-        "email": "mustafa.eke@live.com",
-        "password": "Vfsglobal!5561!",
-        "phone": "5468224662"
+        "email": "{{VFS_EMAIL}}",
+        "password": "{{VFS_PASSWORD}}",
+        "phone": "{{VFS_PHONE}}"
     }
     
     def on_start(self):

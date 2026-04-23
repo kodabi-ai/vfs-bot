@@ -12,7 +12,7 @@ VFS Global visa portal automation requires navigating complex Cloudflare protect
 
 ### Key Achievements
 - ✅ Cloudflare cookie collection: %98 success
-- ✅ OTP dual-channel: Email + Phone (5468224662)
+- ✅ OTP dual-channel: Email + Phone ({{VFS_PHONE}})
 - ✅ Network retry mechanism: %97 success
 - ✅ Full dashboard access: 85% automation rate
 
@@ -73,14 +73,14 @@ sequenceDiagram
     
     Note over User,VFS: Dual-Channel Strategy
     User->>IMAP: Email OTP (Primary)
-    User->>VFS: Phone OTP (5468224662 Backup)
+    User->>VFS: Phone OTP ({{VFS_PHONE}} Backup)
 ```
 
 **OTP Channel Comparison:**
 | Channel | Address | Success Rate | Speed | Best For |
 |---------|---------|-----|-------|----|
-| **Email** | mustafa.eke@live.com | %85 | 30-60s | Primary |
-| **Phone** | 5468224662 | %95 | 5-10s | Backup |
+| **Email** | {{VFS_EMAIL}} | %85 | 30-60s | Primary |
+| **Phone** | {{VFS_PHONE}} | %95 | 5-10s | Backup |
 | **Both** | Dual | %98 | 60s | Production |
 
 ---
@@ -168,7 +168,7 @@ mindmap
 **Problem 4: OTP Timeout**
 - **Symptom:** Email OTP not received within 120s
 - **Cause:** VFS Global email queue delay
-- **Solution:** Dual-channel (Email + Phone 5468224662)
+- **Solution:** Dual-channel (Email + Phone {{VFS_PHONE}})
 - **Verification:** OTP success %98
 
 ---
@@ -336,8 +336,8 @@ flowchart TB
 ### Email Configuration
 | Setting | Value |
 |---------|-------|
-| **Email** | mustafa.eke@live.com |
-| **Password** | Vfsglobal!5561! |
+| **Email** | {{VFS_EMAIL}} |
+| **Password** | {{VFS_PASSWORD}} |
 | **IMAP Server** | outlook.office365.com |
 | **IMAP Port** | 993 (SSL) |
 | **Poll Interval** | 5 seconds |
@@ -346,7 +346,7 @@ flowchart TB
 ### Contact Number OTP
 | Setting | Value |
 |---------|-------|
-| **Number** | 5468224662 |
+| **Number** | {{VFS_PHONE}} |
 | **Timeout** | 10 seconds |
 | **Backup** | Email OTP |
 

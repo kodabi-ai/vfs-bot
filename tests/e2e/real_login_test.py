@@ -8,15 +8,15 @@ async def real_integration_login():
     """Real integration login test to trigger OTP email"""
     
     # Credentials
-    email = os.getenv("VFS_EMAIL", "mustafa.eke@live.com")
-    password = os.getenv("VFS_PASSWORD", "Vfsglobal!5561!")
+    email = os.getenv("VFS_EMAIL", "{{VFS_EMAIL}}")
+    password = os.getenv("VFS_PASSWORD", "{{VFS_PASSWORD}}")
     target_url = "https://visa.vfsglobal.com/tur/tr/fra/login"
     
     print(f"="*80)
     print(f"🚀 REAL INTEGRATION TEST - {datetime.now()}")
     print(f"="*80)
     print(f"📧 Email: {email}")
-    print(f"📱 Phone: 5468224662")
+    print(f"📱 Phone: {{VFS_PHONE}}")
     print(f"🌐 URL: {target_url}")
     print(f"="*80)
     

@@ -12,7 +12,7 @@ def test_worker_batch_processing():
     """Test batch account processing"""
     worker = AutomationWorker()
     accounts = [
-        {"email": "mustafa.eke@live.com", "phone": "5468224662"}
+        {"email": "{{VFS_EMAIL}}", "phone": "{{VFS_PHONE}}"}
     ]
     result = worker.process_batch(accounts)
     assert result is not None

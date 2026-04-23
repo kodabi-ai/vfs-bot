@@ -20,8 +20,8 @@ def test_otp_handler_performance():
     """Test OTP handler response time"""
     handler = OTPHandler()
     start = time.time()
-    handler.validate_email_otp("mustafa.eke@live.com")
-    handler.validate_phone_otp("5468224662")
+    handler.validate_email_otp("{{VFS_EMAIL}}")
+    handler.validate_phone_otp("{{VFS_PHONE}}")
     elapsed = time.time() - start
     assert elapsed < 0.5  # Should complete in under 0.5 seconds
 

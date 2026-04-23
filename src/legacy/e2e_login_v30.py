@@ -52,11 +52,11 @@ async def run_e2e_v30():
             
             if email_input:
                 print("✅ Login Form Detected!")
-                await email_input.fill('mustafa.eke@live.com')
+                await email_input.fill('{{VFS_EMAIL}}')
                 
                 password_input = await page.query_selector('input[name="password"], input[type="password"]')
                 if password_input:
-                    await password_input.fill('Vfsglobal!5561!')
+                    await password_input.fill('{{VFS_PASSWORD}}')
                     print("🔒 Credentials filled.")
                 else:
                     print("⚠️ Password input not found via standard selectors. Saving HTML dump...")
@@ -93,10 +93,10 @@ async def run_e2e_v30():
                 email_input_backup = await page.query_selector('input[type="email"], input[name="email"]')
                 if email_input_backup:
                     print("✅ account-login formu bulundu! Dolduruluyor...")
-                    await email_input_backup.fill('mustafa.eke@live.com')
+                    await email_input_backup.fill('{{VFS_EMAIL}}')
                     password_input = await page.query_selector('input[type="password"]')
                     if password_input:
-                        await password_input.fill('Vfsglobal!5561!')
+                        await password_input.fill('{{VFS_PASSWORD}}')
                     await page.evaluate('document.querySelector("button")?.click()')
                     await page.wait_for_timeout(10000)
                     print(f"🔗 Son URL: {page.url}")

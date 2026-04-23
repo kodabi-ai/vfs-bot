@@ -58,12 +58,12 @@ async def run_e2e_v11():
             if email_input:
                 print("✍️ Filling email...")
                 selector = f'input[name="{email_input["name"]}"]'
-                await page.fill(selector, 'mustafa.eke@live.com')
+                await page.fill(selector, '{{VFS_EMAIL}}')
             
             if password_input:
                 print("✍️ Filling password...")
                 selector = f'input[name="{password_input["name"]}"]'
-                await page.fill(selector, 'Vfsglobal!5561!')
+                await page.fill(selector, '{{VFS_PASSWORD}}')
                 
             print("🖱️ Clicking Login...")
             await page.click('button[type="submit"]')

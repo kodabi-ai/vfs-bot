@@ -84,7 +84,7 @@ sequenceDiagram
     participant SMS as SMS Gateway
     participant Bot as Automation Bot
     
-    User->>SMS: Telefon (5468224662)
+    User->>SMS: Telefon ({{VFS_PHONE}})
     App->>SMS: OTP Gönder
     SMS->>User: SMS Gelir (OTP Kodu)
     User->>App: OTP Girişi
@@ -193,7 +193,7 @@ def ping_check():
   "dashboard_loaded_at": "2026-04-14T20:30:45Z",
   "api_calls": 3,
   "retry_attempts": 2,
-  "user_email": "mustafa.eke@live.com",
+  "user_email": "{{VFS_EMAIL}}",
   "timestamp": "2026-04-14T20:31:00Z"
 }
 ```
@@ -204,11 +204,11 @@ def ping_check():
 
 | Alan | Değer |
 |------|-------|
-| Kullanıcı E-postası | mustafa.eke@live.com |
+| Kullanıcı E-postası | {{VFS_EMAIL}} |
 | Portal | VFS Global Visa Portal |
 | Versiyon | V83–V89 |
-| OTP Telefonu | 5468224662 |
-| Şifre | `Vfsglobal!5561!` |
+| OTP Telefonu | {{VFS_PHONE}} |
+| Şifre | `{{VFS_PASSWORD}}` |
 
 ---
 

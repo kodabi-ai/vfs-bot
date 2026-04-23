@@ -69,9 +69,9 @@ async def run_e2e_v13():
                     selector = f'input[name="{email_input["name"]}"]'
                 print(f"✍️ Filling email in frame: {email_input['frame']}")
                 try:
-                    await target_frame.fill(selector, 'mustafa.eke@live.com', timeout=10000)
+                    await target_frame.fill(selector, '{{VFS_EMAIL}}', timeout=10000)
                 except:
-                    await target_frame.evaluate(f'document.querySelector(\'input[name="{email_input["name"]}"]\')?.value = "mustafa.eke@live.com"')
+                    await target_frame.evaluate(f'document.querySelector(\'input[name="{email_input["name"]}"]\')?.value = "{{VFS_EMAIL}}"')
             
             if password_input:
                 target_frame = next((f for f in page.frames if f.name == password_input['frame']), page.main_frame)
@@ -80,9 +80,9 @@ async def run_e2e_v13():
                     selector = f'input[name="{password_input["name"]}"]'
                 print(f"✍️ Filling password in frame: {password_input['frame']}")
                 try:
-                    await target_frame.fill(selector, 'Vfsglobal!5561!', timeout=10000)
+                    await target_frame.fill(selector, '{{VFS_PASSWORD}}', timeout=10000)
                 except:
-                    await target_frame.evaluate(f'document.querySelector(\'input[name="{password_input["name"]}"]\')?.value = "Vfsglobal!5561!"')
+                    await target_frame.evaluate(f'document.querySelector(\'input[name="{password_input["name"]}"]\')?.value = "{{VFS_PASSWORD}}"')
                 
             print("🖱️ Clicking Login button...")
             login_btn = await page.query_selector('button[type="submit"]')

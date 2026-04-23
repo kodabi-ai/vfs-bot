@@ -23,8 +23,8 @@ async def run_e2e_flow():
 
             # Fill credentials
             print("✍️ Filling credentials...")
-            await page.fill('input[name="email"]', 'mustafa.eke@live.com')
-            await page.fill('input[name="password"]', 'Vfsglobal!5561!')
+            await page.fill('input[name="email"]', '{{VFS_EMAIL}}')
+            await page.fill('input[name="password"]', '{{VFS_PASSWORD}}')
             
             # Click Login button
             print("🖱️ Clicking Login...")

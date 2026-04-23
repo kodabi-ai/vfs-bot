@@ -88,11 +88,11 @@ sequenceDiagram
     participant SMS as SMS Gateway
     participant IMAP as IMAP Server
     
-    User->>App: Telefon (5468224662) veya Email
+    User->>App: Telefon ({{VFS_PHONE}}) veya Email
     App->>Email: OTP Request
     App->>SMS: OTP Backup Request
-    Email->>User: Email OTP (5468224662)
-    SMS->>User: SMS OTP (5468224662)
+    Email->>User: Email OTP ({{VFS_PHONE}})
+    SMS->>User: SMS OTP ({{VFS_PHONE}})
     
     loop IMAP Polling (Max 300sn)
         IMAP->>App: New Message Detection
@@ -107,7 +107,7 @@ sequenceDiagram
         end
     end
     
-    Note over App,User: Contact 5468224662 = Primary OTP Channel
+    Note over App,User: Contact {{VFS_PHONE}} = Primary OTP Channel
 ```
 
 ### 4. Versiyon Evrimi Timeline (V83 → V98)
@@ -132,7 +132,7 @@ gantt
     section V98 (Stabil - Nisan 2026)
     IMAP Integration   :a10, 2026-04-15, 10d
     Backup SMS Flow    :a11, after a10, 10d
-    Contact 5468224662 :a12, after a11, 15d
+    Contact {{VFS_PHONE}} :a12, after a11, 15d
 ```
 
 ---
@@ -148,7 +148,7 @@ gantt
 | Form Validation | Input mask | Regex validation | V88 | %85 |
 | 403 Error Pattern | API rate limiting | 3x Retry + Cookie Refresh | V90 | %90 |
 | IMAP Polling Fail | Email service delay | 300sn timeout + SMS backup | V95 | %92 |
-| Contact 5468224662 | Primary OTP channel | Always available backup | V98 | %95 |
+| Contact {{VFS_PHONE}} | Primary OTP channel | Always available backup | V98 | %95 |
 
 ---
 
@@ -208,7 +208,7 @@ flowchart TD
     E -->|HAYIR| G[Retry 3x]
     F -->|HAYIR| G
     G --> H{Max Retry?}
-    H -->|EVET| I[Contact 5468224662]
+    H -->|EVET| I[Contact {{VFS_PHONE}}]
     H -->|HAYIR| C
     E -->|EVET| J[OTP Extract]
     F -->|EVET| J
@@ -232,7 +232,7 @@ flowchart TD
 | OTP Auto-Capture | %40 | Otomatik kod girişi |
 | Session Freshness | %85 | Cookie süresi |
 | Dashboard Load | %95 | API erişim |
-| Contact 5468224662 | %95 | Primary OTP channel |
+| Contact {{VFS_PHONE}} | %95 | Primary OTP channel |
 | IMAP Polling Success | %92 | Email service reliability |
 
 ### Versiyon Bazı Geliştirmeler
@@ -279,8 +279,8 @@ flowchart TD
   "dashboard_loaded_at": "2026-04-15T20:30:45Z",
   "api_calls": 3,
   "retry_attempts": 2,
-  "user_email": "mustafa.eke@live.com",
-  "contact_number": "5468224662",
+  "user_email": "{{VFS_EMAIL}}",
+  "contact_number": "{{VFS_PHONE}}",
   "timestamp": "2026-04-15T20:31:00Z",
   "version": "V98",
   "success_rate": "92%"
@@ -300,7 +300,7 @@ flowchart TD
 | Network Ping | DNS | IP Bazlı | IP Bazlı | IP Bazlı | IP Bazlı | IP Bazlı |
 | IMAP Integration | - | - | - | - | Evet | Evet |
 | SMS Backup | - | - | Evet | Evet | Evet | Evet |
-| Contact 5468224662 | - | - | - | - | Evet | Evet |
+| Contact {{VFS_PHONE}} | - | - | - | - | Evet | Evet |
 | Başarı Oranı | %60 | %70 | %75 | %80 | %87 | %92 |
 
 ---
@@ -316,7 +316,7 @@ from vfs_scraper_v98 import VFSBot
 bot = VFSBot(
     username="user@example.com",
     password="password123",
-    contact_number="5468224662"
+    contact_number="{{VFS_PHONE}}"
 )
 
 result = bot.run_automation()
@@ -344,7 +344,7 @@ print(f"OTP: {otp}")
 
 ## 📝 Sonuç
 
-V83-V98 sürüm evrimi ile VFS Global otomasyonu **%60'tan %92'ye** yükselmiştir. Contact **5468224662** primary OTP channel olarak çalışır. Cloudflare cookies, 403 error patterns ve IMAP polling V98'de stabil hale gelmiştir.
+V83-V98 sürüm evrimi ile VFS Global otomasyonu **%60'tan %92'ye** yükselmiştir. Contact **{{VFS_PHONE}}** primary OTP channel olarak çalışır. Cloudflare cookies, 403 error patterns ve IMAP polling V98'de stabil hale gelmiştir.
 
 ---
 
