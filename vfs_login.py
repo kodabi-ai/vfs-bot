@@ -1,145 +1,169 @@
 import asyncio
 import logging
-import sys
-from pathlib import Path
+import httpx
+from playwright.async_api import async_playwright
 
-# Configure logging
+import config
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 class VFSLoginBot:
     def __init__(self, email: str = None, password: str = None):
-        from config import EMAIL, PASSWORD
-        self.email = email or EMAIL
-        self.password = password or PASSWORD
-        self.scraper = None
+        self.email = email or config.EMAIL
+        self.password = password or config.PASSWORD
+        self.USER_AGENT = getattr(config, 'USER_AGENT', "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+        self.VIEWPORT = getattr(config, 'VIEWPORT', {'width': 1920, 'height': 1080})
         self.browser = None
         self.context = None
         self.page = None
 
-    async def initialize_scraper(self):
-        import cloudscraper
-        logger.info("🛡️ Step 1: Initializing Cloudscraper...")
-        self.scraper = cloudscraper.create_scraper(
-            browser={'browser': 'chrome', 'custom_digest': 'cloudflare', 'delay': 10}
-        )
+    async def fetch_api_cookies(self):
+        logger.info("🌐 Step 1: Fetching API cookies with httpx...")
+        api_base = config.config.get('vfs_global.urls.api_base', 'https://lift-api.vfsglobal.com')
+        main_base = config.config.get('vfs_global.urls.base', 'https://visa.vfsglobal.com/tur/tr/')
+        
+        main_domain = main_base.replace('https://', '').split('/')[0]
+        api_domain = api_base.replace('https://', '').split('/')[0]
+        
+        async with httpx.AsyncClient(http2=True, follow_redirects=True, timeout=20) as client:
+            try:
+                await client.get(f"https://{main_domain}", headers={"User-Agent": self.USER_AGENT})
+                await client.get(f"https://{api_domain}", headers={"User-Agent": self.USER_AGENT})
+                
+                all_cookies = []
+                for name, cookie in client.cookies.items():
+                    val = cookie.value if hasattr(cookie, 'value') else cookie
+                    if api_domain in name or name == '__cf_bm' or name == '__cfuvid' or name == 'cf_clearance':
+                        domain = f".{api_domain}"
+                    else:
+                        domain = f".{main_domain}"
+                    all_cookies.append({"name": name, "value": val, "domain": domain, "path": "/"})
+                
+                logger.info(f"✅ Fetched {len(all_cookies)} cookies via httpx.")
+                return all_cookies
+            except Exception as e:
+                logger.warning(f"⚠️ httpx cookie fetch failed: {e}. Proceeding with empty cookies.")
+                return []
+
+    async def run(self):
+        logger.info("🚀 Starting V105 Optimization (HTML Debug & Generic Input)...")
         try:
-            resp1 = self.scraper.get("https://visa.vfsglobal.com/tur/tr/", timeout=20)
-            logger.info(f"✅ Root Status: {resp1.status_code}")
-            resp2 = self.scraper.get("https://visa.vfsglobal.com/tur/tr/fra/login", timeout=20)
-            logger.info(f"✅ Login Status: {resp2.status_code}")
-            logger.info("✅ Cloudscraper Bypass Successful.")
-        except Exception as e:
-            logger.error(f"❌ Cloudscraper failed: {e}")
-            raise
-
-    def extract_cookies(self) -> list:
-        cf_cookies = []
-        cf_ua = self.scraper.headers.get('User-Agent', '')
-        for name, cookie in self.scraper.cookies.items():
-            val = cookie.value if hasattr(cookie, 'value') else cookie
-            cf_cookies.append({
-                "name": name,
-                "value": val,
-                "domain": ".vfsglobal.com",
-                "path": "/"
-            })
-        logger.info(f"🍪 Extracted {len(cf_cookies)} cookies.")
-        return cf_cookies, cf_ua
-
-    async def initialize_browser(self, cookies: list, ua: str):
-        from playwright.async_api import async_playwright
-        logger.info("🌐 Initializing Playwright Browser...")
-        self.browser = await async_playwright().start()
-        self.context = await self.browser.chromium.launch_persistent_context(
-            user_data_dir="/tmp/vfs-browser",
-            headless=True,
-            user_agent=ua,
-            viewport={"width": 1920, "height": 1080}
-        )
-        self.page = await self.context.new_page()
-        await self.context.add_cookies(cookies)
-        logger.info("✅ Browser Context Initialized with Cookies.")
-
-    async def wait_for_cf_bypass(self):
-        from config import CF_IFRAME_SELECTOR, CLOUDFLARE_TIMEOUT
-        logger.info("⏳ Waiting for CF Iframe Removal...")
-        try:
-            await self.page.wait_for_selector(CF_IFRAME_SELECTOR, state="detached", timeout=CLOUDFLARE_TIMEOUT)
-            logger.info("✅ CF Iframe Detached!")
-        except Exception as e:
-            logger.warning(f"⚠️ Iframe removal wait failed: {e}")
-
-    async def wait_for_spa_render(self):
-        from config import CONTENT_AWAIT_TIMEOUT
-        logger.info("⏳ Waiting for SPA 'E-posta' content...")
-        try:
-            await self.page.wait_for_function("document.body.innerText.includes('E-posta')", timeout=CONTENT_AWAIT_TIMEOUT)
-            logger.info("✅ SPA Render Detected.")
-        except Exception as e:
-            logger.warning(f"⚠️ SPA render timeout: {e}")
-            await self.page.reload(wait_until="load", timeout=30000)
-            await self.page.wait_for_function("document.body.innerText.includes('E-posta')", timeout=CONTENT_AWAIT_TIMEOUT)
-
-    async def fill_credentials(self):
-        from config import EMAIL_INPUT_SELECTOR, PASSWORD_INPUT_SELECTOR, FORM_FILL_TIMEOUT
-        logger.info("📧 Filling credentials...")
-        try:
-            email_input = await self.page.wait_for_selector(EMAIL_INPUT_SELECTOR, state="visible", timeout=FORM_FILL_TIMEOUT)
-            password_input = await self.page.wait_for_selector(PASSWORD_INPUT_SELECTOR, state="visible", timeout=FORM_FILL_TIMEOUT)
+            api_cookies = await self.fetch_api_cookies()
             
-            await email_input.fill(self.email)
-            logger.info("✅ Email filled.")
+            self.browser = await async_playwright().start()
+            self.context = await self.browser.chromium.launch_persistent_context(
+                user_data_dir="/tmp/vfs-v105",
+                headless=True,
+                user_agent=self.USER_AGENT,
+                viewport=self.VIEWPORT
+            )
+            self.page = self.context.pages[0] if self.context.pages else await self.context.new_page()
             
-            await password_input.fill(self.password)
-            logger.info("✅ Password filled.")
-        except Exception as e:
-            logger.error(f"❌ Failed to fill credentials: {e}")
-            raise
+            if api_cookies:
+                await self.context.add_cookies(api_cookies)
+                logger.info("✅ API cookies injected successfully.")
+            
+            LOGIN_URL = "https://visa.vfsglobal.com/tur/tr/fra/login"
+            logger.info(f"🚀 Navigating to {LOGIN_URL}...")
+            await self.page.goto(LOGIN_URL, wait_until="domcontentloaded", timeout=15000)
+            
+            # Check URL after navigation
+            logger.info(f"🔗 Current URL: {self.page.url}")
+            
+            logger.info("⏳ Waiting for Cloudflare bypass...")
+            try:
+                await self.page.wait_for_selector("iframe[src*='challenges/']", state="detached", timeout=30000)
+                logger.info("✅ Cloudflare challenge cleared.")
+            except Exception as e:
+                logger.warning(f"⚠️ Cloudflare wait timeout: {e}")
 
-    async def submit_login(self):
-        from config import LOGIN_BUTTON_SELECTOR
-        logger.info("🖱️ Submitting login form...")
-        try:
-            login_btn = await self.page.wait_for_selector(LOGIN_BUTTON_SELECTOR, state="visible", timeout=5000)
-            await login_btn.click()
-            logger.info("🔓 Login button clicked!")
+            # V105 Strategy: Wait for ANY input to appear, then debug
+            logger.info("⏳ Waiting for ANY input element...")
+            try:
+                await self.page.wait_for_selector("input, select, textarea", state="attached", timeout=15000)
+                logger.info("✅ Any input element detected in DOM.")
+            except Exception as e:
+                logger.warning(f"⚠️ No input elements detected. Dumping HTML debug...")
+                html_content = await self.page.evaluate('document.body.innerHTML')
+                logger.info(f"📄 HTML Length: {len(html_content)}")
+                logger.info(f"📄 HTML Preview: {html_content[:1000]}")
+                await self.page.reload(wait_until="domcontentloaded")
+                await self.page.wait_for_selector("input, select, textarea", state="attached", timeout=10000)
+
+            # V111 Strategy: Visible Transition Wait (d-none removal) & Robust Fallback
+            logger.info("🔍 Waiting for visible Username/Password inputs (V111)...")
+            try:
+                # Strategy: VFS loads hidden 'd-none' inputs first. We wait for them to become visible.
+                logger.info("⏳ Waiting for visible Username/Email field (removing d-none)...")
+                # Wait for the specific attribute name to lose its hidden state
+                user_input = await self.page.wait_for_selector("input[name='username'], input[name='email']", state="visible", timeout=20000)
+                await user_input.fill(self.email)
+                logger.info("✅ User field filled.")
+
+                logger.info("⏳ Waiting for visible Password field...")
+                pass_input = await self.page.wait_for_selector("input[name='password']", state="visible", timeout=15000)
+                await pass_input.fill(self.password)
+                logger.info("✅ Password field filled.")
+
+                # Click Sign In
+                logger.info("🖱️ Clicking Sign In button...")
+                sign_in_btn = self.page.get_by_role("button", name="Sign In")
+                await sign_in_btn.click(timeout=5000)
+                logger.info("✅ Sign In clicked.")
+                await asyncio.sleep(5)
+
+            except Exception as e:
+                logger.warning(f"⚠️ V111 Standard Strategy failed: {e}")
+                # Fallback: Try any visible button and fill first available inputs
+                logger.info("🔄 Fallback: Trying first visible button and inputs...")
+                try:
+                    btns = await self.page.query_selector_all("button")
+                    for b in btns:
+                        if await b.is_visible():
+                            await b.click()
+                            break
+                except Exception as sub_e:
+                    logger.error(f"❌ Fallback failed: {sub_e}")
+
+            logger.info("🖱️ Clicking Login Button...")
+            try:
+                login_btn = await self.page.wait_for_selector(LOGIN_BUTTON, state="visible", timeout=5000)
+                await login_btn.click()
+                logger.info("🔓 Login button clicked.")
+            except Exception as e:
+                logger.warning(f"⚠️ Login button not found. Trying any button with 'Giriş' text or first button...")
+                btn = await self.page.wait_for_selector('button:has-text("Giriş")', state="visible", timeout=5000)
+                await btn.click()
+                logger.info("🔓 Button clicked.")
             
-            logger.info("⏳ Waiting for Dashboard/OTP redirect...")
-            await asyncio.sleep(20)
+            logger.info("⏳ Waiting for redirect/OTP...")
+            await asyncio.sleep(10)
             
             final_url = self.page.url
             logger.info(f"🔗 Final URL: {final_url}")
             
-            if 'otp' in final_url or 'fra/dashboard' in final_url:
-                logger.info("✅ Login Completed!")
+            if 'otp' in final_url or 'dashboard' in final_url:
+                logger.info("✅ Login Completed Successfully!")
                 return True
             else:
                 logger.warning("⚠️ Unexpected redirect.")
-                await self.page.screenshot(path="screenshots/login_result.png")
+                await self.page.screenshot(path="screenshots/v105_result.png")
                 return False
-        except Exception as e:
-            logger.error(f"❌ Login submission failed: {e}")
-            await self.page.screenshot(path="screenshots/login_error.png")
-            return False
 
-    async def run(self):
-        await self.initialize_scraper()
-        cookies, ua = self.extract_cookies()
-        await self.initialize_browser(cookies, ua)
-        
-        try:
-            await self.page.goto("https://visa.vfsglobal.com/tur/tr/fra/login", wait_until="load", timeout=30000)
-            await self.wait_for_cf_bypass()
-            await self.wait_for_spa_render()
-            await self.fill_credentials()
-            success = await self.submit_login()
-            return success
+        except Exception as e:
+            logger.error(f"❌ Execution failed: {e}")
+            if self.page:
+                await self.page.screenshot(path="screenshots/v105_error.png")
+            return False
         finally:
             if self.context:
                 await self.context.close()
             if self.browser:
-                await self.browser.close()
+                try:
+                    await self.browser.close()
+                except:
+                    pass
 
 if __name__ == "__main__":
     bot = VFSLoginBot()

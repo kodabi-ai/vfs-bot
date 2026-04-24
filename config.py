@@ -78,3 +78,9 @@ class FlexibleConfig:
 
 # Global instance
 config = FlexibleConfig()
+# Dynamic attribute exposure for backward compatibility
+EMAIL = config.get('vfs_global.credentials.email', '')
+PASSWORD = config.get('vfs_global.credentials.password', '')
+PHONE = config.get('vfs_global.credentials.phone', '')
+USER_AGENT = config.get('vfs_global.stealth.user_agent', '')
+VIEWPORT = config.get('vfs_global.browser.viewport', {})
