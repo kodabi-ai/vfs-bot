@@ -1,7 +1,4 @@
 # VFS Global Automation Configuration
-# -----------------------------------
-# This file holds configuration values. Sensitive data can be overridden via .env variables.
-
 vfs_global:
   urls:
     base: "https://visa.vfsglobal.com/tur/tr/"
@@ -9,13 +6,25 @@ vfs_global:
     api_base: "https://lift-api.vfsglobal.com"
   
   credentials:
-    email: "{{VFS_EMAIL}}"  # Overridden by VFS_EMAIL env var
-    password: "{{VFS_PASSWORD}}" # Overridden by VFS_PASSWORD env var
-    phone: "{{VFS_PHONE}}"  # Overridden by VFS_PHONE env var
+    email: "{{VFS_EMAIL}}"
+    password: "{{VFS_PASSWORD}}"
+    phone: "{{VFS_PHONE}}"
+
+  polling:
+    interval_seconds: 300
+    max_retries: 5
+
+  stealth:
+    enabled: true
+    user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+
+  browser:
+    headless: true
+    viewport: {"width": 1920, "height": 1080}
 
   timeouts:
     cloudflare: 45000
-    content_await: 40000
+    content_await: 60000
     form_fill: 10000
     otp_poll: 300
   
